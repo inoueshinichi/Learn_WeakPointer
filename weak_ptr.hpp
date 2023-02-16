@@ -8,40 +8,30 @@ namespace is
   class PtrInfo;
   
   template <class T>
-	class WeakPtrController;
+  class WeakPtrController;
   
   /*弱参照ポインタクラス*/
-	template <typename T>
-	class WeakPtr
-	{
-		friend class WeakPtrController<T>;
-		PtrInfo* m_pPtrInfo{ nullptr };
+  template <typename T>
+  class WeakPtr
+  {
+	  friend class WeakPtrController<T>;
+	  PtrInfo* m_pPtrInfo{ nullptr };
 
-	public:
-		~WeakPtr()
-		{
-			PtrInfo::decrement(m_pPtrInfo);
-		}
+  public:
+	  ~WeakPtr() { PtrInfo::decrement(m_pPtrInfo); }
+	  WeakPtr() {}
 
-		WeakPtr()
-		{}
+	  explicit WeakPtr(PtrInfo* p_ptrInfo) : m_pPtrInfo(p_ptrInfo)
+	  {
+		 if (m_pPtrInfo) { m_pPtrInfo->increment(); }
+	  }
 
-		explicit WeakPtr(PtrInfo* p_ptrInfo)
-			: m_pPtrInfo(p_ptrInfo)
-		{
-			if (m_pPtrInfo)
-			{
-				m_pPtrInfo->increment();
-			}
-		}
-
-		WeakPtr(const WeakPtr& other)
-			: m_pPtrInfo(other.m_pPtrInfo)
-		{
-			if (m_pPtrInfo)
-			{
-				m_pPtrInfo->increment();
-			}
+	  WeakPtr(const WeakPtr& other) : m_pPtrInfo(other.m_pPtrInfo)
+	  {
+		  if (m_pPtrInfo)
+		  {
+		    m_pPtrInfo->increment();
+		  }
 		}
 
 		WeakPtr& operator=(const WeakPtr& other)
@@ -111,7 +101,6 @@ namespace is
 			return m_pPtrInfo ? m_pPtrInfo->getRefCount() : 0;
 		}
 	};
-  
   
    
    /*ポインタ情報クラス*/
@@ -185,10 +174,11 @@ namespace is
 		WeakPtr<T> getWeakPtr() { return m_weakPtr; }
 	};
 
-#define DEFINE_WEAK_CONTROLLER(TYPE)                                                 \
+#define DEFINE_WEAK_CONTROLLER(TYPE)                                               \
 	public: WeakPtr<TYPE> getWeakPtr() { return m_WeakPtrController.getWeakPtr(); }  \
 	protected: WeakPtrController<TYPE> m_WeakPtrController{this}
 
-#define DEFINE_WEAK_GET(TYPE) public: WeakPtr<TYPE> getWeakPtr( void ){ return m_WeakPtrController.GetDowncasted_unsafe( this ); }class{}
+#define DEFINE_WEAK_GET(TYPE)  \
+	public: WeakPtr<TYPE> getWeakPtr( void ) { return m_WeakPtrController.GetDowncasted_unsafe( this ); } class{}
 
 }
